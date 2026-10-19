@@ -43,9 +43,11 @@ RUN mkdir .next && chown nextjs:nodejs .next
 # Automatically leverage output traces to reduce image size and improve performance
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY run.js ./run.js
 
 USER nextjs
 
 EXPOSE 3000
+EXPOSE 8080
 
-CMD ["node", "server.js"]
+CMD ["node", "run.js"]
