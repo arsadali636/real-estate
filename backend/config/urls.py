@@ -13,7 +13,8 @@ from site_visits.views import SiteVisitViewSet
 from reports.views import (
     DashboardSummaryView, ReportsView, ExportCSVView,
     LeadSourcesView, LeadFunnelView, ActivitySummaryView,
-    AgentPerformanceView, RemindersView
+    AgentPerformanceView, RemindersView,
+    UserActivityReportView, ExportUserActivityCSVView
 )
 
 class HealthCheckView(APIView):
@@ -54,6 +55,8 @@ urlpatterns = [
     path('api/v1/dashboard/activity-summary/', ActivitySummaryView.as_view(), name='dashboard-activity-summary'),
     path('api/v1/dashboard/agent-performance/', AgentPerformanceView.as_view(), name='dashboard-agent-performance'),
     path('api/v1/dashboard/reminders/', RemindersView.as_view(), name='dashboard-reminders'),
+    path('api/v1/reports/user-activity/', UserActivityReportView.as_view(), name='reports-user-activity'),
+    path('api/v1/reports/export/user-activity/', ExportUserActivityCSVView.as_view(), name='reports-export-user-activity'),
     path('api/v1/reports/<str:report_type>/', ReportsView.as_view(), name='reports-detail'),
     path('api/v1/reports/export/csv/', ExportCSVView.as_view(), name='reports-export-csv'),
     

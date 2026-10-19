@@ -1,5 +1,8 @@
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') || 'http://localhost:8000/api/v1';
+export const API_BASE_URL = (() => {
+  const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
+  if (!envUrl) return 'http://localhost:8000/api/v1';
+  return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl}/api/v1`;
+})();
 
 export interface Organization {
   id: number;
@@ -222,6 +225,46 @@ export interface DashboardSummary {
   recent_activities?: LeadActivity[];
   upcoming_followups?: FollowUpTask[];
   recent_leads?: Lead[];
+}
+
+export interface UserActivityRow {
+  id: number;
+  user_name: string;
+  email?: string | null;
+  role: string;
+  avatar_url?: string;
+  working_hours: string;
+  calls?: number | null;
+  unique_leads_calls?: number | null;
+  whatsapp?: number | null;
+  unique_leads_whatsapp?: number | null;
+  email_count?: number | null;
+  unique_leads_email?: number | null;
+  sms?: number | null;
+  unique_leads_sms?: number | null;
+  status_edits?: number | null;
+  unique_leads_status_edits?: number | null;
+  form_edits?: number | null;
+  unique_leads_form_edits?: number | null;
+  notes_added?: number | null;
+  unique_leads_notes_added?: number | null;
+  meeting_scheduled?: number | null;
+  meetings_done?: number | null;
+  site_visit_scheduled?: number | null;
+  site_visits_done?: number | null;
+  callback?: number | null;
+  booked?: number | null;
+  not_interested?: number | null;
+  dropped?: number | null;
+}
+
+export interface UserActivityResponse {
+  count: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  date_filter: string;
+  results: UserActivityRow[];
 }
 
 export interface TeamMember extends User {
@@ -528,6 +571,40 @@ export const api = {
   },
 
   // Reports
+  async getUserActivityReport(params?: {
+    date_filter?: string;
+    start_date?: string;
+    end_date?: string;
+    user_id?: string | number;
+    with_team?: boolean;
+    search?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<UserActivityResponse> {
+    const q = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== '') q.set(k, String(v));
+      });
+    }
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return request(`/reports/user-activity/${queryStr}`);
+  },
+
+  getExportUserActivityCsvUrl(params?: Record<string, string | number | undefined | boolean>): string {
+    const q = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== '') q.set(k, String(v));
+      });
+    }
+    const token = typeof window !== 'undefined'
+      ? (localStorage.getItem('estatevo_token') || localStorage.getItem('estateflow_token') || '')
+      : '';
+    if (token) q.set('token', token);
+    return `${API_BASE_URL}/reports/export/user-activity/?${q.toString()}`;
+  },
+
   async getReport(type: string, params?: Record<string, string | number | undefined>): Promise<unknown> {
     const q = new URLSearchParams();
     if (params) {

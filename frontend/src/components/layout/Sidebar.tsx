@@ -67,10 +67,55 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-2 py-3 space-y-1 overflow-y-auto scrollbar-none">
+      <nav className="flex-1 px-2 py-3 space-y-1 overflow-visible scrollbar-none">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           const Icon = item.icon;
+
+          if (item.name === 'Reports') {
+            return (
+              <div key={item.name} className="relative group">
+                <Link
+                  href="/reports?tab=lead-status"
+                  onClick={onCloseMobile}
+                  title={item.name}
+                  className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#10B981] text-white font-semibold shadow-xs'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5 font-medium'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span className="truncate tracking-tight">{item.name}</span>
+                  </div>
+                </Link>
+
+                {/* Leadrat CRM Flyout Sub-menu */}
+                <div className="hidden group-hover:block absolute left-full top-0 ml-1.5 w-44 bg-[#0F1424] border border-[#1E2538] rounded-md shadow-2xl py-1 z-50 animate-in fade-in slide-in-from-left-1 duration-150">
+                  {[
+                    { name: 'Lead Status', tab: 'lead-status' },
+                    { name: 'Activity', tab: 'activity' },
+                    { name: 'Project', tab: 'project' },
+                    { name: 'Source', tab: 'source' },
+                    { name: 'Sub-Source', tab: 'sub-source' },
+                    { name: 'Agency', tab: 'agency' },
+                    { name: 'Visit & Meeting', tab: 'visit-meeting' },
+                  ].map((sub) => (
+                    <Link
+                      key={sub.name}
+                      href={`/reports?tab=${sub.tab}`}
+                      onClick={onCloseMobile}
+                      className="block px-3 py-1.5 text-[11px] font-medium text-slate-300 hover:bg-[#10B981] hover:text-white transition-colors"
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <Link
               key={item.name}
