@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { API_BASE_URL } from '@/lib/api';
+import { getApiBaseUrl } from '@/lib/api';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -118,7 +118,7 @@ export default function SettingsPage() {
           <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
             <div>
               <span className="font-semibold text-slate-800">REST API Base URL</span>
-              <div className="font-mono text-[11px] text-blue-600 mt-0.5">{API_BASE_URL}</div>
+              <div className="font-mono text-[11px] text-blue-600 mt-0.5">{getApiBaseUrl()}</div>
             </div>
             <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md font-semibold text-[11px]">
               Connected

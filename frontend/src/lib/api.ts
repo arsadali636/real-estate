@@ -1,8 +1,26 @@
-export const API_BASE_URL = (() => {
+export const getApiBaseUrl = (): string => {
   const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
-  if (!envUrl) return 'http://localhost:8000/api/v1';
-  return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl}/api/v1`;
-})();
+  if (envUrl && !envUrl.includes('localhost:8000') && !envUrl.includes('127.0.0.1:8000')) {
+    return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl}/api/v1`;
+  }
+
+  // When running in the browser: if not on localhost, use live backend URL
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host !== 'localhost' && host !== '127.0.0.1') {
+      return 'https://real-estate-production-bfb2.up.railway.app/api/v1';
+    }
+  }
+
+  // In production builds:
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://real-estate-production-bfb2.up.railway.app/api/v1';
+  }
+
+  return 'http://localhost:8000/api/v1';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export interface Organization {
   id: number;
@@ -288,7 +306,8 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers.set('Authorization', `Token ${token}`);
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
   try {
     const res = await fetch(url, { ...options, headers });
 
@@ -329,7 +348,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     return await res.json();
   } catch (err: unknown) {
     if (err instanceof TypeError && err.message.includes('fetch')) {
-      throw new Error(`Cannot connect to ESTATEVO Django API at ${API_BASE_URL}. Ensure the backend server is running.`);
+      throw new Error(`Cannot connect to ESTATEVO Django API at ${baseUrl}. Ensure the backend server is running.`);
     }
     throw err;
   }
@@ -602,7 +621,7 @@ export const api = {
       ? (localStorage.getItem('estatevo_token') || localStorage.getItem('estateflow_token') || '')
       : '';
     if (token) q.set('token', token);
-    return `${API_BASE_URL}/reports/export/user-activity/?${q.toString()}`;
+    return `${getApiBaseUrl()}/reports/export/user-activity/?${q.toString()}`;
   },
 
   async getReport(type: string, params?: Record<string, string | number | undefined>): Promise<unknown> {
@@ -627,6 +646,6 @@ export const api = {
       ? (localStorage.getItem('estatevo_token') || localStorage.getItem('estateflow_token') || '')
       : '';
     if (token) q.set('token', token);
-    return `${API_BASE_URL}/reports/export/csv/?${q.toString()}`;
+    return `${getApiBaseUrl()}/reports/export/csv/?${q.toString()}`;
   },
 };
