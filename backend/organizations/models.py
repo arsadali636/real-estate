@@ -31,6 +31,7 @@ class OrganizationMembership(models.Model):
         ('OWNER', 'Owner'),
         ('ADMIN', 'Admin'),
         ('MANAGER', 'Manager'),
+        ('TEAM_LEAD', 'Team Lead'),
         ('EXECUTIVE', 'Executive'),
     )
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='memberships')

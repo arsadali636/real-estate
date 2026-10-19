@@ -56,6 +56,10 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
     setSiteVisitModalOpen(true);
   };
 
+  if (pathname === '/login') {
+    return <>{children}</>;
+  }
+
   return (
     <ShellContext.Provider
       value={{

@@ -13,6 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(read_only=True)
     is_owner_or_admin = serializers.BooleanField(read_only=True)
     is_manager_or_above = serializers.BooleanField(read_only=True)
+    is_team_lead_or_above = serializers.BooleanField(read_only=True)
+    team_lead_name = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -20,9 +22,13 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name',
             'display_name', 'role', 'job_title', 'phone',
             'avatar_url', 'organization', 'is_active',
-            'is_owner_or_admin', 'is_manager_or_above',
+            'is_owner_or_admin', 'is_manager_or_above', 'is_team_lead_or_above',
+            'team_lead', 'team_lead_name',
         ]
         read_only_fields = ['id', 'username']
+
+    def get_team_lead_name(self, obj):
+        return obj.team_lead.display_name if obj.team_lead else None
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()

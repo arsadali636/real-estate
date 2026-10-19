@@ -130,9 +130,12 @@ export const TopNav: React.FC<TopNavProps> = ({
                     >
                       <div>
                         <div className="font-medium text-slate-900">{acc.label}</div>
+                        {acc.scope && (
+                          <div className="text-[10px] text-blue-600 font-semibold">{acc.scope}</div>
+                        )}
                         <div className="text-[10px] text-slate-400 font-mono">{acc.email}</div>
                       </div>
-                      {isCurrent && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                      {isCurrent && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />}
                     </button>
                   );
                 })}

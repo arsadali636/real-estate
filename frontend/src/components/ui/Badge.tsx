@@ -98,6 +98,8 @@ export const RoleBadge: React.FC<{ role: string }> = ({ role }) => {
       return <Badge variant="primary">Admin</Badge>;
     case 'MANAGER':
       return <Badge variant="info">Manager</Badge>;
+    case 'TEAM_LEAD':
+      return <Badge variant="warning">Team Lead</Badge>;
     case 'EXECUTIVE':
       return <Badge variant="success">Executive</Badge>;
     default:

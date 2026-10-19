@@ -60,6 +60,16 @@ class Command(BaseCommand):
                 "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
             },
             {
+                "username": "rahul.tl",
+                "email": "rahul.tl@estatevo.io",
+                "first_name": "Rahul",
+                "last_name": "Saxena",
+                "role": "TEAM_LEAD",
+                "job_title": "Residential Team Lead (East Bengaluru)",
+                "phone": "+91 98450 88221",
+                "avatar_url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+            },
+            {
                 "username": "sarah.agent",
                 "email": "sarah.agent@estatevo.io",
                 "first_name": "Sarah",
@@ -155,7 +165,17 @@ class Command(BaseCommand):
             if u_created:
                 self.stdout.write(self.style.SUCCESS(f"Created user: {user.username} ({user.role})"))
 
+        # Link team members to Team Lead (Rahul Saxena)
+        rahul = created_users.get("rahul.tl")
+        if rahul:
+            for agent_key in ["sarah.agent", "priya.agent"]:
+                if agent_key in created_users:
+                    agent = created_users[agent_key]
+                    agent.team_lead = rahul
+                    agent.save(update_fields=["team_lead"])
+
         executives = [
+            created_users["rahul.tl"],
             created_users["sarah.agent"],
             created_users["vikram.agent"],
             created_users["priya.agent"],

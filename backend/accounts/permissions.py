@@ -17,6 +17,12 @@ class IsManagerOrAbove(permissions.BasePermission):
             return False
         return request.user.is_manager_or_above
 
+class IsTeamLeadOrAbove(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return request.user.is_team_lead_or_above
+
 class OrganizationScopedPermission(permissions.BasePermission):
     """
     Ensures objects belong to the authenticated user's organization.

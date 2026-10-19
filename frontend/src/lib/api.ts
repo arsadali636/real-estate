@@ -40,7 +40,7 @@ export interface User {
   first_name: string;
   last_name: string;
   display_name: string;
-  role: 'OWNER' | 'ADMIN' | 'MANAGER' | 'EXECUTIVE';
+  role: 'OWNER' | 'ADMIN' | 'MANAGER' | 'TEAM_LEAD' | 'EXECUTIVE';
   job_title?: string;
   phone?: string;
   avatar_url?: string;
@@ -48,6 +48,9 @@ export interface User {
   is_active: boolean;
   is_owner_or_admin: boolean;
   is_manager_or_above: boolean;
+  is_team_lead_or_above?: boolean;
+  team_lead?: number | null;
+  team_lead_name?: string | null;
 }
 
 export interface PropertyUnit {

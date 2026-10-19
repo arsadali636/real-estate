@@ -60,6 +60,7 @@ class SwitchDemoRoleView(APIView):
                 'OWNER': 'admin',
                 'ADMIN': 'admin',
                 'MANAGER': 'manager',
+                'TEAM_LEAD': 'rahul.tl',
                 'EXECUTIVE': 'sarah.agent',
             }
             uname = role_map.get(role_target.upper(), 'admin')

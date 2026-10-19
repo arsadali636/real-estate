@@ -27,8 +27,14 @@ class FollowUpTaskViewSet(viewsets.ModelViewSet):
         )
 
         # Enforce server-side role permissions
-        if not self.request.user.is_manager_or_above:
-            qs = qs.filter(assigned_to=self.request.user)
+        user = self.request.user
+        if user.is_manager_or_above:
+            pass  # Owner and Manager see all tasks
+        elif user.role == 'TEAM_LEAD':
+            team_ids = list(user.team_members.values_list('id', flat=True)) + [user.id]
+            qs = qs.filter(assigned_to_id__in=team_ids)
+        else:
+            qs = qs.filter(assigned_to=user)
 
         # Due filter options: today, overdue, upcoming, completed
         due_filter = self.request.query_params.get('due_filter')

@@ -35,7 +35,13 @@ class LeadViewSet(viewsets.ModelViewSet):
 
         # Enforce server-side role permissions
         user = self.request.user
-        if not user.is_manager_or_above:
+        if user.is_manager_or_above:
+            pass  # Owner and Manager see all leads
+        elif user.role == 'TEAM_LEAD':
+            # Team Lead sees their own leads + leads assigned to their team members
+            team_ids = list(user.team_members.values_list('id', flat=True)) + [user.id]
+            qs = qs.filter(assigned_agent_id__in=team_ids)
+        else:
             # Executive sees only their assigned leads
             qs = qs.filter(assigned_agent=user)
 
@@ -150,10 +156,14 @@ class LeadViewSet(viewsets.ModelViewSet):
         agent_id = request.data.get('agent_id')
 
         if not request.user.is_manager_or_above and agent_id != request.user.id:
-            return Response(
-                {'error': 'Only managers and admins can reassign leads to other team members.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            is_team_member = False
+            if request.user.role == 'TEAM_LEAD':
+                is_team_member = request.user.team_members.filter(id=agent_id).exists()
+            if not is_team_member:
+                return Response(
+                    {'error': 'Only managers, admins, and team leads can reassign leads.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         new_agent = None
         if agent_id:

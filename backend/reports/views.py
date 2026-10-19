@@ -26,23 +26,51 @@ def filter_by_role_and_params(request, qs_model):
     qs = qs_model.objects.filter(organization=org)
 
     # Role enforcement
-    if not request.user.is_manager_or_above:
-        if hasattr(qs_model, 'assigned_agent'):
-            qs = qs.filter(assigned_agent=request.user)
-        elif hasattr(qs_model, 'assigned_to'):
-            qs = qs.filter(assigned_to=request.user)
-        elif hasattr(qs_model, 'assigned_executive'):
-            qs = qs.filter(assigned_executive=request.user)
+    user = request.user
+    team_ids = []
+    if user.role == 'TEAM_LEAD':
+        team_ids = list(user.team_members.values_list('id', flat=True)) + [user.id]
 
-    # Agent filter (if manager/owner)
-    agent_id = request.query_params.get('agent_id')
-    if agent_id and request.user.is_manager_or_above:
+    if user.is_manager_or_above:
+        pass
+    elif user.role == 'TEAM_LEAD':
         if hasattr(qs_model, 'assigned_agent'):
-            qs = qs.filter(assigned_agent_id=agent_id)
+            qs = qs.filter(assigned_agent_id__in=team_ids)
         elif hasattr(qs_model, 'assigned_to'):
-            qs = qs.filter(assigned_to_id=agent_id)
+            qs = qs.filter(assigned_to_id__in=team_ids)
         elif hasattr(qs_model, 'assigned_executive'):
-            qs = qs.filter(assigned_executive_id=agent_id)
+            qs = qs.filter(assigned_executive_id__in=team_ids)
+        elif hasattr(qs_model, 'user'):
+            qs = qs.filter(user_id__in=team_ids)
+        elif hasattr(qs_model, 'performed_by'):
+            qs = qs.filter(performed_by_id__in=team_ids)
+    else:
+        if hasattr(qs_model, 'assigned_agent'):
+            qs = qs.filter(assigned_agent=user)
+        elif hasattr(qs_model, 'assigned_to'):
+            qs = qs.filter(assigned_to=user)
+        elif hasattr(qs_model, 'assigned_executive'):
+            qs = qs.filter(assigned_executive=user)
+        elif hasattr(qs_model, 'user'):
+            qs = qs.filter(user=user)
+        elif hasattr(qs_model, 'performed_by'):
+            qs = qs.filter(performed_by=user)
+
+    # Agent filter (if manager/owner or team lead)
+    agent_id = request.query_params.get('agent_id')
+    if agent_id:
+        can_filter = user.is_manager_or_above or (user.role == 'TEAM_LEAD' and int(agent_id) in team_ids)
+        if can_filter:
+            if hasattr(qs_model, 'assigned_agent'):
+                qs = qs.filter(assigned_agent_id=agent_id)
+            elif hasattr(qs_model, 'assigned_to'):
+                qs = qs.filter(assigned_to_id=agent_id)
+            elif hasattr(qs_model, 'assigned_executive'):
+                qs = qs.filter(assigned_executive_id=agent_id)
+            elif hasattr(qs_model, 'user'):
+                qs = qs.filter(user_id=agent_id)
+            elif hasattr(qs_model, 'performed_by'):
+                qs = qs.filter(performed_by_id=agent_id)
 
     # Project filter
     project_id = request.query_params.get('project_id')

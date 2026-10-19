@@ -17,7 +17,12 @@ class LeadActivityViewSet(viewsets.ReadOnlyModelViewSet):
         if not org:
             return LeadActivity.objects.none()
         qs = LeadActivity.objects.filter(organization=org).select_related('lead', 'performed_by')
-        # If executive, only show activities on leads assigned to them
-        if not self.request.user.is_manager_or_above:
-            qs = qs.filter(lead__assigned_agent=self.request.user)
+        user = self.request.user
+        if user.is_manager_or_above:
+            pass
+        elif user.role == 'TEAM_LEAD':
+            team_ids = list(user.team_members.values_list('id', flat=True)) + [user.id]
+            qs = qs.filter(lead__assigned_agent_id__in=team_ids)
+        else:
+            qs = qs.filter(lead__assigned_agent=user)
         return qs

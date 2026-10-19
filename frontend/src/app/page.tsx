@@ -341,11 +341,17 @@ export default function DashboardPage() {
               </button>
 
               {showRoleDropdown && (
-                <div className="absolute right-0 mt-2 w-64 bg-[#18133E] rounded-xl shadow-2xl border border-[#2E2768] p-2 z-50">
-                  <div className="px-2 py-1 text-[11px] font-bold text-slate-300 border-b border-[#28215E]">
-                    Switch Demo User Account
+                <div className="absolute right-0 mt-2 w-80 bg-[#18133E] rounded-xl shadow-2xl border border-[#2E2768] p-2 z-50">
+                  <div className="px-2.5 py-1.5 flex items-center justify-between border-b border-[#28215E]">
+                    <span className="text-[11px] font-bold text-slate-300">Switch Demo Role Account</span>
+                    <button
+                      onClick={() => router.push('/login')}
+                      className="text-[10px] text-indigo-400 hover:text-indigo-300 underline font-medium cursor-pointer"
+                    >
+                      Login Page ↗
+                    </button>
                   </div>
-                  <div className="py-1 space-y-1">
+                  <div className="py-1 space-y-1 max-h-[380px] overflow-y-auto scrollbar-none">
                     {SEEDED_DEMO_ACCOUNTS.map((acc) => (
                       <button
                         key={acc.username}
@@ -353,14 +359,21 @@ export default function DashboardPage() {
                           switchDemoRole(acc.role, acc.username);
                           setShowRoleDropdown(false);
                         }}
-                        className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
+                        className={`w-full text-left p-2 rounded-lg text-xs flex items-center justify-between transition-colors ${
                           user?.username === acc.username
                             ? 'bg-blue-600 text-white font-semibold'
                             : 'hover:bg-white/5 text-slate-300'
                         }`}
                       >
-                        <span className="truncate">{acc.label}</span>
-                        {user?.username === acc.username && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                        <div className="min-w-0 pr-2">
+                          <div className="font-semibold truncate">{acc.label}</div>
+                          {acc.scope && (
+                            <div className={`text-[10px] truncate ${user?.username === acc.username ? 'text-blue-100' : 'text-slate-400'}`}>
+                              {acc.scope}
+                            </div>
+                          )}
+                        </div>
+                        {user?.username === acc.username && <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />}
                       </button>
                     ))}
                   </div>

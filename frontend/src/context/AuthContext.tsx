@@ -17,14 +17,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const SEEDED_DEMO_ACCOUNTS = [
-  { role: 'OWNER', label: 'Owner / Admin (Rajesh Sharma)', username: 'admin', email: 'admin@estatevo.io' },
-  { role: 'MANAGER', label: 'Sales Manager (Ananya Verma)', username: 'manager', email: 'manager@estatevo.io' },
-  { role: 'EXECUTIVE', label: 'Sr. Relationship Mgr (Sarah Jenkins)', username: 'sarah.agent', email: 'sarah.agent@estatevo.io' },
-  { role: 'EXECUTIVE', label: 'Luxury Consultant (Vikram Malhotra)', username: 'vikram.agent', email: 'vikram.agent@estatevo.io' },
-  { role: 'EXECUTIVE', label: 'Commercial Advisor (Priya Patel)', username: 'priya.agent', email: 'priya.agent@estatevo.io' },
-  { role: 'EXECUTIVE', label: 'Senior Sales Specialist (Varun Kapoor)', username: 'varun.agent', email: 'varun.agent@estatevo.io' },
-  { role: 'EXECUTIVE', label: 'HNI Client Advisor (Sneha Nowlak)', username: 'sneha.agent', email: 'sneha.agent@estatevo.io' },
-  { role: 'EXECUTIVE', label: 'Project Specialist (Amitav Sen)', username: 'amitav.agent', email: 'amitav.agent@estatevo.io' },
+  { role: 'OWNER', label: 'Owner / Admin (Rajesh Sharma)', username: 'admin', email: 'admin@estatevo.io', scope: 'Full Organization (75 Leads & All Analytics)' },
+  { role: 'MANAGER', label: 'Sales Manager (Ananya Verma)', username: 'manager', email: 'manager@estatevo.io', scope: 'Sales Operations (75 Leads & Pipeline)' },
+  { role: 'TEAM_LEAD', label: 'Team Lead (Rahul Saxena)', username: 'rahul.tl', email: 'rahul.tl@estatevo.io', scope: 'East Team: Rahul + Sarah + Priya (36 Leads)' },
+  { role: 'EXECUTIVE', label: 'Sr. Relationship Mgr (Sarah Jenkins)', username: 'sarah.agent', email: 'sarah.agent@estatevo.io', scope: 'Personal Assigned (12 Leads)' },
+  { role: 'EXECUTIVE', label: 'Luxury Consultant (Vikram Malhotra)', username: 'vikram.agent', email: 'vikram.agent@estatevo.io', scope: 'Personal Assigned (13 Leads)' },
+  { role: 'EXECUTIVE', label: 'Commercial Advisor (Priya Patel)', username: 'priya.agent', email: 'priya.agent@estatevo.io', scope: 'Personal Assigned (11 Leads)' },
+  { role: 'EXECUTIVE', label: 'Senior Sales Specialist (Varun Kapoor)', username: 'varun.agent', email: 'varun.agent@estatevo.io', scope: 'Personal Assigned (13 Leads)' },
+  { role: 'EXECUTIVE', label: 'HNI Client Advisor (Sneha Nowlak)', username: 'sneha.agent', email: 'sneha.agent@estatevo.io', scope: 'Personal Assigned (13 Leads)' },
+  { role: 'EXECUTIVE', label: 'Project Specialist (Amitav Sen)', username: 'amitav.agent', email: 'amitav.agent@estatevo.io', scope: 'Personal Assigned (13 Leads)' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -43,14 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const meRes = await api.getMe();
         setUser(meRes.user);
       } else {
+        // If already on /login, let user log in manually or via role buttons
+        if (typeof window !== 'undefined' && window.location.pathname === '/login') {
+          setIsLoading(false);
+          return;
+        }
         // Auto-seed login for seamless demo experience
         try {
-          let loginRes;
-          try {
-            loginRes = await api.login('admin@estatevo.io', 'EstateFlow@2026');
-          } catch {
-            loginRes = await api.login('admin@estateflow.io', 'EstateFlow@2026');
-          }
+          const loginRes = await api.login('admin@estatevo.io', 'EstateFlow@2026');
           setToken(loginRes.token);
           setUser(loginRes.user);
           localStorage.setItem('estatevo_token', loginRes.token);
@@ -110,6 +111,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('estateflow_user');
       setToken(null);
       setUser(null);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     }
   };
 
