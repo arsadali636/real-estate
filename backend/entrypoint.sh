@@ -2,6 +2,7 @@
 set -e
 
 echo "=== ESTATEVO CRM Django Backend Starting ==="
+echo "► Database configuration: ${DATABASE_URL:+PostgreSQL (connected)}${DATABASE_URL:-SQLite fallback mode}"
 
 # Run database migrations
 echo "► Applying database migrations..."

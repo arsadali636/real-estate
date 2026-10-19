@@ -74,21 +74,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database configuration
-# Prioritizes DATABASE_URL if available; otherwise falls back to local postgresql or sqlite
-default_db_url = os.environ.get('DATABASE_URL')
-if not default_db_url:
-    # Try local PostgreSQL estateflow_crm
-    default_db_url = 'postgresql://localhost:5432/estateflow_crm'
-
-try:
+# Prioritizes DATABASE_URL (Railway PostgreSQL) if provided; otherwise falls back to SQLite
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
     DATABASES = {
         'default': dj_database_url.config(
-            default=default_db_url,
+            default=database_url,
             conn_max_age=600,
             conn_health_checks=True,
         )
     }
-except Exception:
+else:
+    # Graceful fallback: SQLite (ensures app boots up reliably even before PostgreSQL is attached)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
